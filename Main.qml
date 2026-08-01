@@ -127,12 +127,6 @@ ApplicationWindow {
                 font.bold: true
             }
 
-            Label {
-                text: "(Data)"
-                color: textSecondary
-                font.pixelSize: 12
-            }
-
             Item { Layout.fillWidth: true }
 
             Button {
@@ -186,6 +180,74 @@ ApplicationWindow {
 
                 Rectangle { Layout.fillWidth: true; height: 1; color: borderColor }
 
+                ListView {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    clip: true
+                    spacing: 8
+                    model: dailyUvIndexMax
+
+                    delegate: Rectangle {
+                        width: ListView.view.width
+                        height: 72
+                        radius: 8
+                        color: surfaceAltColor
+                        border.color: uvColor(modelData)
+                        border.width: 1
+
+                        function uvColor(v) {
+                            if (v < 3) return "#66BB6A"
+                            if (v < 6) return "#FFCA28"
+                            if (v < 8) return "#FF7043"
+                            if (v < 11) return "#EC407A"
+                            return "#AB47BC"
+                        }
+
+                        function uvRiskLabel(v) {
+                            if (v < 3) return "Low"
+                            if (v < 6) return "Moderate"
+                            if (v < 8) return "High"
+                            if (v < 11) return "Very High"
+                            return "Extreme"
+                        }
+
+                        ColumnLayout {
+                            anchors.fill: parent
+                            anchors.margins: 10
+                            spacing: 2
+
+                            Label {
+                                text: index < dailyLabels.length ? dailyLabels[index] : ("Day " + (index + 1))
+                                color: textSecondary
+                                font.pixelSize: 12
+                            }
+
+                            RowLayout {
+                                spacing: 6
+                                Label {
+                                    text: modelData.toFixed(1)
+                                    color: uvColor(modelData)
+                                    font.pixelSize: 22
+                                    font.bold: true
+                                }
+                                Label {
+                                    text: uvRiskLabel(modelData)
+                                    color: textSecondary
+                                    font.pixelSize: 11
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Label {
+                    text: "🌥 Weather Details️"
+                    color: textPrimary
+                    font.pixelSize: 15
+                    font.bold: true
+                    wrapMode: Text.WordWrap
+                    Layout.fillWidth: true
+                }
                 ListView {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
@@ -397,27 +459,29 @@ ApplicationWindow {
                     Label { text: "👁️ Visibility (km)"; color: textPrimary; font.pixelSize: 13 }
                 }
 
-                RowLayout {
-                    spacing: 4
-                    CheckBox {
-                        id: toggleWeatherCode
-                        checked: false
-                        onToggled: chart.applyVisibility()
-                        indicator: Rectangle {
-                            implicitWidth: 16; implicitHeight: 16
-                            x: toggleWeatherCode.leftPadding; y: (toggleWeatherCode.height - height) / 2
-                            radius: 3
-                            color: surfaceAltColor
-                            border.color: seriesColors.weathercode
-                            Rectangle {
-                                anchors.centerIn: parent
-                                width: 8; height: 8; radius: 2
-                                color: seriesColors.weathercode
-                                visible: toggleWeatherCode.checked
-                            }
-                        }
-                    }
-                    Label { text: "☁️ Weather Code"; color: textPrimary; font.pixelSize: 13 }
+                // RowLayout {
+                //     spacing: 4
+                //     CheckBox {
+                //         id: toggleWeatherCode
+                //         checked: false
+                //         onToggled: chart.applyVisibility()
+                //         indicator: Rectangle {
+                //             implicitWidth: 16; implicitHeight: 16
+                //             x: toggleWeatherCode.leftPadding; y: (toggleWeatherCode.height - height) / 2
+                //             radius: 3
+                //             color: surfaceAltColor
+                //             border.color: seriesColors.weathercode
+                //             Rectangle {
+                //                 anchors.centerIn: parent
+                //                 width: 8; height: 8; radius: 2
+                //                 color: seriesColors.weathercode
+                //                 visible: toggleWeatherCode.checked
+                //             }
+                //         }
+                //     }
+                //     Label { text: "☁️ Weather Code"; color: textPrimary; font.pixelSize: 13 }
+                    // weatherCodeSeries.visible = toggleWeatherCode.checked
+                    // if (weatherCodeSeries.visible) activeArrays.push(window.hourlyWeathercode)
                 }
             }
 
@@ -558,7 +622,6 @@ ApplicationWindow {
                             windSeries.visible = toggleWind.checked
                             windDirSeries.visible = toggleWindDir.checked
                             visibilitySeries.visible = toggleVisibility.checked
-                            weatherCodeSeries.visible = toggleWeatherCode.checked
 
                             var activeArrays = []
                             if (tempSeries.visible) activeArrays.push(window.hourlyTemperature)
@@ -567,7 +630,7 @@ ApplicationWindow {
                             if (windSeries.visible) activeArrays.push(window.hourlyWindspeed)
                             if (windDirSeries.visible) activeArrays.push(window.hourlyWinddirection)
                             if (visibilitySeries.visible) activeArrays.push(window.hourlyVisibility)
-                            if (weatherCodeSeries.visible) activeArrays.push(window.hourlyWeathercode)
+
 
                             var lo = 0, hi = 10
                             var first = true
